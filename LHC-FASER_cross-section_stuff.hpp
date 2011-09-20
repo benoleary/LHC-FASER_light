@@ -5,32 +5,24 @@
  *      Author: Ben O'Leary (benjamin.oleary@gmail.com)
  *      Copyright 2011 Ben O'Leary
  *
- *      THIS (particular version of this) CODE IS INTENDED TO BE PRIVATE CODE,
- *      AND IS PROVIDED ONLY AS-IS TO THOSE REQUESTING IT.
- *      I am releasing it under the GNU GPL anyway, but I would prefer that it
- *      is only used by those obtaining it directly from me. If you would like
- *      to redistribute it, I would prefer that you just direct intended
- *      recipients to ask me for it. As long as they ask nicely, there should
- *      be no problem in getting it.  ;]
+ *      This file is part of "LHC-FASER Light".
  *
- *      This file is part of "LHC-FASER light".
- *
- *      "LHC-FASER light" is free software: you can redistribute it and/or
+ *      "LHC-FASER Light" is free software: you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License as
  *      published by the Free Software Foundation, either version 3 of the
  *      License, or (at your option) any later version.
  *
- *      "LHC-FASER light" is distributed in the hope that it will be useful,
+ *      "LHC-FASER Light" is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
  *
  *      You should have received a copy of the GNU General Public License
- *      along with "LHC-FASER light".  If not, see
+ *      along with "LHC-FASER Light".  If not, see
  *      <http://www.gnu.org/licenses/>.
  *
  *      The GNU General Public License should be in GNU_public_license.txt
- *      the files of "LHC-FASER light" are:
+ *      the files of "LHC-FASER Light" are:
  *      LHC-FASER_cross-section_stuff.hpp
  *      LHC-FASER_cross-section_stuff.cpp
  *      LHC-FASER_global_stuff.hpp
@@ -39,10 +31,15 @@
  *      LHC-FASER_input_handling_stuff.cpp
  *      LHC-FASER_lepton_distributions.hpp
  *      LHC-FASER_lepton_distributions.cpp
+ *      LHC-FASER_light.hpp
  *      LHC-FASER_light_tester_main.cpp
  *      LHC-FASER_sparticle_decay_stuff.hpp
  *      LHC-FASER_sparticle_decay_stuff.cpp
+ *      Makefile
+ *      README.txt
  *      and the CppSLHA library, which is released under its own GNU GPL.
+ *      (An example spectrum file in SLHA format for SPS1a is included,
+ *      SPS1a_spectrum.txt, which was created with SPheno.)
  */
 
 #ifndef LHC_FASER_CROSS_SECTION_STUFF_HPP_
@@ -194,9 +191,9 @@ namespace LHC_FASER
 
   protected:
 
+    input_handler const* const shortcut;
     signed_particle_shortcut_pair const* scolored_pair;
     CppSLHA::particle_property_set const* directly_produced_squark;
-    input_handler const* const shortcut;
 
     double stored_value;
 
@@ -243,10 +240,9 @@ namespace LHC_FASER
 
   protected:
 
-    input_handler const* const shortcut;
-
-    std::string const grid_directory;
     int const LHC_energy;
+    input_handler const* const shortcut;
+    std::string const grid_directory;
 
     std::vector< square_grid* > grids;
     // this holds square_grid instances with unique names.
