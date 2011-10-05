@@ -311,6 +311,12 @@
 /*
  * Changelog:
  *
+ * 2011-06-08
+ * 1.2.2 - Minor changes:
+ *         - a comparison to std::string::npos in a SPheno-specific BLOCK
+ *           thing was possibly always evaluating to true because an unsigned
+ *           int was being used; fixed by using a std::size_t instead.
+ *
  * 2011-04-27
  * 1.2.1 - Major changes:
  *         - oops, SPheno at least is unhappy with the MODSEL BLOCK entries

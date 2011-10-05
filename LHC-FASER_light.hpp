@@ -49,4 +49,111 @@
 #include "LHC-FASER_input_handling_stuff.hpp"
 #include "LHC-FASER_cross-section_stuff.hpp"
 
+namespace LHC_FASER
+{
+  class lhcFaserLight
+  {
+  public:
+    lhcFaserLight( std::string const slhaSpectrumFileName );
+    ~lhcFaserLight();
+
+    double
+    getLoSevenTevCrossSection( int const firstSparticlePdgCode,
+                               int const secondSparticlePdgCode );
+    double
+    getNloSevenTevCrossSection( int const firstSparticlePdgCode,
+                                int const secondSparticlePdgCode );
+    double
+    getLoFourteenTevCrossSection( int const firstSparticlePdgCode,
+                                  int const secondSparticlePdgCode );
+    double
+    getNloFourteenTevCrossSection( int const firstSparticlePdgCode,
+                                   int const secondSparticlePdgCode );
+    void
+    updateForNewSlhaFile();
+    void
+    updateForNewSlhaFile( std::string const slhaSpectrumFile );
+    std::string const*
+    getExampleOutput();
+
+  protected:
+    CppSLHA::CppSLHA2 slhaData;
+    readierForNewPoint localReadier;
+    inputHandler* loInput;
+    inputHandler* nloInput;
+    crossSectionHandler* loCrossSectionHandler;
+    crossSectionHandler* nloCrossSectionHandler;
+    std::string exampleOutput;
+    signedParticleShortcutPair* defaultBadProductionPair;
+
+    double
+    getCrossSection( crossSectionHandler* whichCrossSectionHandler,
+                     int const beamEnergy,
+                     int const firstSparticlePdgCode,
+                     int const secondSparticlePdgCode );
+  };
+
+
+
+
+
+  // inline functions:
+
+
+  inline double
+  lhcFaserLight::getLoSevenTevCrossSection( int const firstSparticlePdgCode,
+                                            int const secondSparticlePdgCode )
+  {
+    return getCrossSection( loCrossSectionHandler,
+                            7,
+                            firstSparticlePdgCode,
+                            secondSparticlePdgCode );
+  }
+
+  inline double
+  lhcFaserLight::getNloSevenTevCrossSection( int const firstSparticlePdgCode,
+                                             int const secondSparticlePdgCode )
+  {
+    return getCrossSection( nloCrossSectionHandler,
+                            7,
+                            firstSparticlePdgCode,
+                            secondSparticlePdgCode );
+  }
+
+  inline double
+  lhcFaserLight::getLoFourteenTevCrossSection( int const firstSparticlePdgCode,
+                                            int const secondSparticlePdgCode )
+  {
+    return getCrossSection( loCrossSectionHandler,
+                            14,
+                            firstSparticlePdgCode,
+                            secondSparticlePdgCode );
+  }
+
+  inline double
+  lhcFaserLight::getNloFourteenTevCrossSection( int const firstSparticlePdgCode,
+                                                int const secondSparticlePdgCode )
+  {
+    return getCrossSection( nloCrossSectionHandler,
+                            14,
+                            firstSparticlePdgCode,
+                            secondSparticlePdgCode );
+  }
+
+  inline void
+  lhcFaserLight::updateForNewSlhaFile()
+  {
+    slhaData.read_file();
+    localReadier.readyObserversForNewPoint();
+  }
+
+  inline void
+  lhcFaserLight::updateForNewSlhaFile( std::string const slhaSpectrumFile )
+  {
+    slhaData.read_file( slhaSpectrumFile );
+    localReadier.readyObserversForNewPoint();
+  }
+
+}  // end of LHC_FASER namespace
+
 #endif /* LHC_FASER_LIGHT_HPP_ */

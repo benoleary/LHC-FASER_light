@@ -71,121 +71,99 @@ int main( int argumentCount,
   }
   else  // otherwise, do what is supposed to be done.
   {
-    CppSLHA::CppSLHA2 slhaData( argumentStrings[ 1 ] );
-    slhaData.read_file();
-    LHC_FASER::readier_for_new_point localReadier;
-    LHC_FASER::input_handler inputs( &slhaData,
-                                     slhaData.get_particle_spectrum(),
-                                     "./NLO_grids",
-                                     &localReadier );
+    LHC_FASER::lhcFaserLight exampleLhcFaserLight( argumentStrings[ 1 ] );
+
     std::cout
     << std::endl
-    << "path to grids = "
-    << *(inputs.get_path_to_grids())
-    << std::endl;
-
-    inputs.set_using_NLO( false );
-    LHC_FASER::cross_section_handler loCrossSectionHandler( &inputs );
-    LHC_FASER::cross_section_table_set*
-    loCrossSectionsAtSevenTev = loCrossSectionHandler.get_table_set( 7 );
-    LHC_FASER::cross_section_table_set*
-    loCrossSectionsAtFourteenTev = loCrossSectionHandler.get_table_set( 14 );
-    std::vector< LHC_FASER::cross_section_table* >
-    channelLoCrossSectionsAtSevenTev;
-    std::vector< LHC_FASER::cross_section_table* >
-    channelLoCrossSectionsAtFourteenTev;
-    int numberOfChannels = 0;
-    for( std::vector< LHC_FASER::signed_particle_shortcut_pair*
-                                                              >::const_iterator
-         channelIterator
-         = inputs.get_sparticle_production_combinations()->begin();
-         inputs.get_sparticle_production_combinations()->end()
-         > channelIterator;
-         ++channelIterator )
-    {
-      channelLoCrossSectionsAtSevenTev.push_back(
-                    loCrossSectionsAtSevenTev->get_table( *channelIterator ) );
-      channelLoCrossSectionsAtFourteenTev.push_back(
-                 loCrossSectionsAtFourteenTev->get_table( *channelIterator ) );
-      ++numberOfChannels;
-    }
-
-    inputs.set_using_NLO( true );
-    LHC_FASER::cross_section_handler nloCrossSectionHandler( &inputs );
-    LHC_FASER::cross_section_table_set*
-    nloCrossSectionsAtSevenTev = nloCrossSectionHandler.get_table_set( 7 );
-    LHC_FASER::cross_section_table_set*
-    nloCrossSectionsAtFourteenTev = nloCrossSectionHandler.get_table_set( 14 );
-    std::vector< LHC_FASER::cross_section_table* >
-    channelNloCrossSectionsAtSevenTev;
-    std::vector< LHC_FASER::cross_section_table* >
-    channelNloCrossSectionsAtFourteenTev;
-    for( std::vector< LHC_FASER::signed_particle_shortcut_pair*
-                                                              >::const_iterator
-         channelIterator
-         = inputs.get_sparticle_production_combinations()->begin();
-         inputs.get_sparticle_production_combinations()->end()
-         > channelIterator;
-         ++channelIterator )
-    {
-      channelNloCrossSectionsAtSevenTev.push_back(
-                   nloCrossSectionsAtSevenTev->get_table( *channelIterator ) );
-      channelNloCrossSectionsAtFourteenTev.push_back(
-                nloCrossSectionsAtFourteenTev->get_table( *channelIterator ) );
-    }
-
-
-    channelLoCrossSectionsAtSevenTev.at( 0 )->get_pair();
+    << "demonstration of get[Lo/Nlo][Seven/Fourteen]TevCrossSection():"
+    << std::endl
+    << "LO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) = "
+    << exampleLhcFaserLight.getLoSevenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
     std::cout
-    << "WARNING! THE FLAVOR BREAKDOWN OF THE CROSS-SECTIONS IS ONLY"
-    << " APPROXIMATE! IT IS BASED ON DIVIDING UP THE FLAVOR-SUMMED RESULT FROM"
-    << " PROSPINO 2.1, WHICH WAS CALCULATED USING MSTW2008 PARTON DISTRIBUTION"
-    << " FUNCTIONS."
     << std::endl
-    << "The cross-sections (in picobarns) are:"
+    << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
     << std::endl
-    << "-----------------------"
+    << "LO, 14 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) = "
+    << exampleLhcFaserLight.getLoFourteenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
+    << std::endl
+    << "NLO, 14 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) = "
+    << exampleLhcFaserLight.getNloFourteenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) again = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + sdownL ( "
+    << CppSLHA::PDG_code::sdown_L << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                  CppSLHA::PDG_code::sdown_L );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, sdownL ( " << CppSLHA::PDG_code::sdown_L
+    << " ) + gluino ( " << CppSLHA::PDG_code::gluino << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                    CppSLHA::PDG_code::sdown_L,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, sdownL ( " << CppSLHA::PDG_code::sdown_L
+    << " ) + scharmL ( " << CppSLHA::PDG_code::scharm_L << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                    CppSLHA::PDG_code::sdown_L,
+                                                 CppSLHA::PDG_code::scharm_L );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, sdownL ( " << CppSLHA::PDG_code::sdown_L
+    << " ) + sdownL ( " << CppSLHA::PDG_code::sdown_L << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                    CppSLHA::PDG_code::sdown_L,
+                                                  CppSLHA::PDG_code::sdown_L );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, sdownL ( " << CppSLHA::PDG_code::sdown_L
+    << " ) + antisdownL ( " << -CppSLHA::PDG_code::sdown_L << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                    CppSLHA::PDG_code::sdown_L,
+                                                 -CppSLHA::PDG_code::sdown_L );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, sdownL ( " << CppSLHA::PDG_code::sdown_L
+    << " ) + photon ( " << CppSLHA::PDG_code::photon << " ) = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                    CppSLHA::PDG_code::sdown_L,
+                                                   CppSLHA::PDG_code::photon );
+    std::cout
+    << std::endl
+    << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+    << CppSLHA::PDG_code::gluino << " ) again = "
+    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+                                                     CppSLHA::PDG_code::gluino,
+                                                   CppSLHA::PDG_code::gluino );
+    std::cout
+    << std::endl
     << std::endl;
-    for( int channelCounter = 0;
-         numberOfChannels > channelCounter;
-         ++channelCounter )
-    {
-      std::cout
-      << *(channelLoCrossSectionsAtSevenTev.at( channelCounter
-                      )->get_pair()->get_first_pointer()->get_name_or_antiname(
-                            channelLoCrossSectionsAtSevenTev.at( channelCounter
-                          )->get_pair()->first_is_not_antiparticle() ))
-      << "+"
-      << *(channelLoCrossSectionsAtSevenTev.at( channelCounter
-                     )->get_pair()->get_second_pointer()->get_name_or_antiname(
-                            channelLoCrossSectionsAtSevenTev.at( channelCounter
-                                 )->get_pair()->second_is_not_antiparticle() ))
-      << ":"
-      << std::endl
-      << " sigma_LO (07TeV) = "
-      << channelLoCrossSectionsAtSevenTev.at( channelCounter )->get_value()
-      << ", sigma_NLO (07TeV) = "
-      << channelNloCrossSectionsAtSevenTev.at( channelCounter )->get_value()
-      << " (K-factor = "
-      << ( channelNloCrossSectionsAtSevenTev.at( channelCounter )->get_value()
-           / channelLoCrossSectionsAtSevenTev.at( channelCounter
-                                                               )->get_value() )
-      << ")"
-      << std::endl
-      << " sigma_LO (14TeV) = "
-      << channelLoCrossSectionsAtFourteenTev.at( channelCounter )->get_value()
-      << ", sigma_NLO (14TeV) = "
-      << channelNloCrossSectionsAtFourteenTev.at( channelCounter )->get_value()
-      << " (K-factor = "
-      << ( channelNloCrossSectionsAtFourteenTev.at( channelCounter
-                                                                 )->get_value()
-           / channelLoCrossSectionsAtFourteenTev.at( channelCounter
-                                                               )->get_value() )
-      << ")"
-      << std::endl
-      << std::endl;
-    }
 
+    std::cout << *(exampleLhcFaserLight.getExampleOutput());
   }
 
   return EXIT_SUCCESS;

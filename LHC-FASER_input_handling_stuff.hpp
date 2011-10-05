@@ -2,1194 +2,594 @@
  * LHC-FASER_input_handling_stuff.hpp
  *
  *  Created on: 17 Dec 2010
- *      Author: Ben O'Leary (benjamin.oleary@gmail.com)
- *      Copyright 2011 Ben O'Leary
+ *      Authors: Ben O'Leary (benjamin.oleary@gmail.com)
+ *               Jonas Lindert (jonas.lindert@googlemail.com)
+ *               Carsten Robens (carsten.robens@gmx.de)
+ *      Copyright 2010 Ben O'Leary, Jonas Lindert, Carsten Robens
  *
- *      This file is part of "LHC-FASER Light".
+ *      This file is part of LHC-FASER.
  *
- *      "LHC-FASER Light" is free software: you can redistribute it and/or
- *      modify it under the terms of the GNU General Public License as
- *      published by the Free Software Foundation, either version 3 of the
- *      License, or (at your option) any later version.
+ *      LHC-FASER is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      (at your option) any later version.
  *
- *      "LHC-FASER Light" is distributed in the hope that it will be useful,
+ *      LHC-FASER is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
  *
  *      You should have received a copy of the GNU General Public License
- *      along with "LHC-FASER Light".  If not, see
- *      <http://www.gnu.org/licenses/>.
+ *      along with LHC-FASER.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      The GNU General Public License should be in GNU_public_license.txt
- *      the files of "LHC-FASER Light" are:
- *      LHC-FASER_cross-section_stuff.hpp
- *      LHC-FASER_cross-section_stuff.cpp
+ *      the files of LHC-FASER are:
+ *      LHC-FASER.hpp
+ *      LHC-FASER.cpp
+ *      LHC-FASER_electroweak_cascade_stuff.hpp
+ *      LHC-FASER_electroweak_cascade_stuff.cpp
+ *      LHC-FASER_full_cascade_stuff.hpp
+ *      LHC-FASER_full_cascade_stuff.cpp
  *      LHC-FASER_global_stuff.hpp
  *      LHC-FASER_global_stuff.cpp
  *      LHC-FASER_input_handling_stuff.hpp
  *      LHC-FASER_input_handling_stuff.cpp
+ *      LHC-FASER_kinematics_stuff.hpp
+ *      LHC-FASER_kinematics_stuff.cpp
  *      LHC-FASER_lepton_distributions.hpp
  *      LHC-FASER_lepton_distributions.cpp
- *      LHC-FASER_light.hpp
- *      LHC-FASER_light_tester_main.cpp
+ *      LHC-FASER_signal_calculator_stuff.hpp
+ *      LHC-FASER_signal_calculator_stuff.cpp
+ *      LHC-FASER_signal_data_collection_stuff.hpp
+ *      LHC-FASER_signal_data_collection_stuff.cpp
  *      LHC-FASER_sparticle_decay_stuff.hpp
  *      LHC-FASER_sparticle_decay_stuff.cpp
- *      Makefile
- *      README.txt
- *      and the CppSLHA library, which is released under its own GNU GPL.
- *      (An example spectrum file in SLHA format for SPS1a is included,
- *      SPS1a_spectrum.txt, which was created with SPheno.)
+ *      and README.LHC-FASER.txt which describes the package.
+ *
+ *      LHC-FASER also requires CppSLHA. It should be found in a subdirectory
+ *      included with this package.
+ *
+ *      LHC-FASER also requires grids of lookup values. These should also be
+ *      found in a subdirectory included with this package.
  */
 
 #ifndef LHC_FASER_INPUT_HANDLING_STUFF_HPP_
 #define LHC_FASER_INPUT_HANDLING_STUFF_HPP_
 
-#include "CppSLHA/CppSLHA.hpp"
 #include "LHC-FASER_global_stuff.hpp"
-#include "LHC-FASER_lepton_distributions.hpp"
+#include "LHC-FASER_base_lepton_distribution_stuff.hpp"
 #include "LHC-FASER_sparticle_decay_stuff.hpp"
 
 namespace LHC_FASER
 {
-
   /* this class holds the various gauge couplings which are re-calculated for
-   * every new point. it is kept separate from the input_handler class for ease
+   * every new point. it is kept separate from the inputHandler class for ease
    * of (abusing) const correctness.
    */
-  class update_dependent_inputs : public interface_readied_for_new_point
+  class updateDependentGaugeInputs : public getsReadiedForNewPoint
   {
-
   public:
+    updateDependentGaugeInputs( CppSLHA::SLHA_BLOCK const* smInputs,
+                                particlePointer const wPlusPointer,
+                                particlePointer const zPointer,
+                                readierForNewPoint* const readier )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    ~updateDependentGaugeInputs()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
-    update_dependent_inputs( CppSLHA::SLHA_BLOCK const* given_SM_inputs,
-              CppSLHA::particle_property_set const* const given_W_plus_pointer,
-                   CppSLHA::particle_property_set const* const given_Z_pointer,
-                             readier_for_new_point* const given_readier ) :
-      interface_readied_for_new_point( given_readier ),
-      SM_inputs( given_SM_inputs ),
-      W_plus_pointer( given_W_plus_pointer ),
-      Z_pointer( given_Z_pointer )
-    {
-
-      // just an initialization list.
-
-    }
-
-    ~update_dependent_inputs()
-    {
-
-      // does nothing.
-
-    }
-
-
-    inline double
-    get_electromagnetic_coupling()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return electromagnetic_coupling;
-
-    }
-
-    inline double
-    get_g_one()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return g_one;
-
-    }
-
-    inline double
-    get_g_two()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return g_two;
-
-    }
-
-    inline double
-    get_g_three()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return g_three;
-
-    }
-
-    inline double
-    get_weak_sine()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return weak_sine;
-
-    }
-
-    inline double
-    get_weak_cosine()
-    {
-
-      if( needs_to_prepare_for_this_point() )
-        {
-
-          calculate_gauge_couplings();
-          finish_preparing_for_this_point();
-
-        }
-
-      return weak_cosine;
-
-    }
-
-
+    double
+    getElectromagneticFineStructureConstant()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getHyperchargeGaugeCoupling()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakGaugeCoupling()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getColorGaugeCoupling()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakSine()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakCosine()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
   protected:
-
-    CppSLHA::SLHA_BLOCK const* SM_inputs;
-    CppSLHA::particle_property_set const* const W_plus_pointer;
-    CppSLHA::particle_property_set const* const Z_pointer;
-
+    CppSLHA::SLHA_BLOCK const* smInputs;
+    particlePointer const wPlusPointer;
+    particlePointer const zPointer;
     // the gauge couplings:
-    double electromagnetic_coupling;
-    double g_one;
+    double electromagneticFineStructureConstant;
+    double hyperchargeGaugeCoupling;
     // the gauge coupling for U(1) at m_Z.
-    double g_two;
+    double weakGaugeCoupling;
     // the gauge coupling for SU(2) at m_Z.
-    double g_three;
+    double colorGaugeCoupling;
     // the gauge coupling for SU(3) at m_Z.
-    double weak_sine;
+    double weakSine;
     // the sine of the weak mixing angle.
-    double weak_cosine;
+    double weakCosine;
     // the cosine of the weak mixing angle.
 
-    inline void
-    calculate_gauge_couplings()
-    {
+    void
+    calculateGaugeCouplings()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+  };
 
-      // we work out the gauge couplings from the SMINPUTS BLOCK:
-      if( NULL != SM_inputs )
-        {
 
-          electromagnetic_coupling
-          = sqrt( ( ( 4.0 * M_PI ) / SM_inputs->get_entry( 1 ) ) );
-          weak_cosine = ( W_plus_pointer->get_absolute_mass()
-                          / Z_pointer->get_absolute_mass() );
-          weak_sine = sqrt( ( 1.0 - weak_cosine * weak_cosine ) );
-          g_one = ( electromagnetic_coupling / weak_cosine );
-          g_two = ( electromagnetic_coupling / weak_sine );
-          g_three = sqrt( ( 4.0 * M_PI * SM_inputs->get_entry( 3 ) ) );
+  /* this class is to hold frequently-accessed absolute masses which are
+   * re-calculated for every new point. it is kept separate from the
+   * inputHandler class for ease of (abusing) const correctness.
+   */
+  class updateDependentAbsoluteMasses : public getsReadiedForNewPoint
+  {
+  public:
+    updateDependentAbsoluteMasses( particlePointer const gluinoPointer,
+                                   readierForNewPoint* const readier )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    ~updateDependentAbsoluteMasses()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
-        }
-      else
-        {
+    double
+    getGluinoMass()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
-          std::cout
-          << std::endl
-          << "LHC-FASER::warning! input_handler::input_handler() did not"
-          <<" provide a valid pointer to SMINPUTS. gauge couplings are set to "
-          << CppSLHA::CppSLHA_global::really_wrong_value_string;
-          std::cout << std::endl;
+  protected:
+    particlePointer const gluinoPointer;
+    double gluinoMass;
+  };
 
-          electromagnetic_coupling
-          = CppSLHA::CppSLHA_global::really_wrong_value;
-          weak_sine = CppSLHA::CppSLHA_global::really_wrong_value;
-          weak_cosine = CppSLHA::CppSLHA_global::really_wrong_value;
-          g_one = CppSLHA::CppSLHA_global::really_wrong_value;
-          g_two = CppSLHA::CppSLHA_global::really_wrong_value;
-          g_three = CppSLHA::CppSLHA_global::really_wrong_value;
 
-        }
+  /* this class is to hold average absolute masses which are re-calculated for
+   * every new point. it is kept separate from the inputHandler class for ease
+   * of (abusing) const correctness.
+   */
+  class updateDependentAverageMass : public getsReadiedForNewPoint
+  {
+  public:
+    updateDependentAverageMass( particleVectorPointer const setPointer,
+                                readierForNewPoint* const readier )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    ~updateDependentAverageMass()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
-    }
+    double
+    getAverageMass()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
+  protected:
+    particleVectorPointer const setPointer;
+    double averageMass;
   };
 
 
   // this class holds a set of pointers to various objects for ease of
   // reference to particles.
-  class input_handler
+  class inputHandler
   {
-
   public:
-
-    input_handler( CppSLHA::CppSLHA0 const* const given_CppSLHA_pointer,
-                CppSLHA::EW_scale_spectrum const* const given_spectrum_pointer,
-                   std::string const given_path_to_grids,
-                   readier_for_new_point* const given_readier )
-    /* code in .cpp file. */;
-
-    ~input_handler()
-    /* code in .cpp file. */;
-
-
-    void
-    add_squark_as_colored_sparticle_and_in_production(
-                     CppSLHA::particle_property_set const* const given_squark )
-    /* this adds the given squark to the list of squarks & the list of colored
-     * sparticles, & also adds its relevant production combinations (with
-     * a gluino, with its antisquark, with itself) to the list.
-     */
-    /* code in .cpp file. */;
-
-
-    inline bool
-    is_verbose()
-    const
-    // if this is true, lots of warnings will be printed. if false, the code
-    // should stay quiet without warning of the impending seg faults...
-    {
-
-      return verbosity_flag;
-
-    }
-
-    inline void
-    set_verbosity( bool given_verbosity )
-    {
-
-      verbosity_flag = given_verbosity;
-
-    }
-
-
-    inline bool
-    using_NLO()
-    const
-    {
-
-      return using_NLO_flag;
-
-    }
-
-    inline void
-    set_using_NLO( bool given_using_NLO_flag )
-    {
-
-      using_NLO_flag = given_using_NLO_flag;
-
-    }
-
-
-    inline std::string const*
-    get_path_to_grids()
-    const
-    {
-
-      return &path_to_grids;
-
-    }
-
-    inline std::string*
-    get_path_to_cross_section_grids()
-    {
-
-      return &path_to_cross_section_grids;
-
-    }
-
-    inline std::string*
-    get_path_to_kinematics_grids()
-    {
-
-      return &path_to_kinematics_grids;
-
-    }
-
-    inline std::string const*
-    inspect_path_to_cross_section_grids()
-    const
-    {
-
-      return &path_to_cross_section_grids;
-
-    }
-
-    inline std::string const*
-    inspect_path_to_kinematics_grids()
-    const
-    {
-
-      return &path_to_kinematics_grids;
-
-    }
-
-
-    inline CppSLHA::CppSLHA0 const*
-    get_CppSLHA()
-    const
-    {
-
-      return CppSLHA_pointer;
-
-    }
-
-    inline CppSLHA::EW_scale_spectrum const*
-    get_spectrum()
-    const
-    {
-
-      return spectrum_pointer;
-
-    }
-
-
-    inline double
-    get_electromagnetic_coupling()
-    const
-    {
-
-      return update_dependent_input_values->get_electromagnetic_coupling();
-
-    }
-
-    inline double
-    get_g_one()
-    const
-    {
-
-      return update_dependent_input_values->get_g_one();
-
-    }
-
-    inline double
-    get_g_two()
-    const
-    {
-
-      return update_dependent_input_values->get_g_two();
-
-    }
-
-    inline double
-    get_g_three()
-    const
-    {
-
-      return update_dependent_input_values->get_g_three();
-
-    }
-
-    inline double
-    get_weak_sine()
-    const
-    {
-
-      return update_dependent_input_values->get_weak_sine();
-
-    }
-
-    inline double
-    get_weak_cosine()
-    const
-    {
-
-      return update_dependent_input_values->get_weak_cosine();
-
-    }
-
-
-    inline readier_for_new_point*
-    get_readier()
-    const
-    {
-
-      return readier;
-
-    }
-
-
-    inline CppSLHA::particle_property_set const*
-    get_down()
-    const
-    {
-
-      return down_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_up()
-    const
-    {
-
-      return up_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_strange()
-    const
-    {
-
-      return strange_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_charm()
-    const
-    {
-
-      return charm_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_bottom()
-    const
-    {
-
-      return bottom_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_top()
-    const
-    {
-
-      return top_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_electron()
-    const
-    {
-
-      return electron_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_electron_neutrino()
-    const
-    {
-
-      return electron_neutrino_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_muon()
-    const
-    {
-
-      return muon_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_muon_neutrino()
-    const
-    {
-
-      return muon_neutrino_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_tau_lepton()
-    const
-    {
-
-      return tau_lepton_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_tau_neutrino()
-    const
-    {
-
-      return tau_neutrino_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_gluon()
-    const
-    {
-
-      return gluon_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_photon()
-    const
-    {
-
-      return photon_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_Z()
-    const
-    {
-
-      return Z_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_W_plus()
-    const
-    {
-
-      return W_plus_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_light_neutral_EWSB_scalar()
-    const
-    {
-
-      return light_neutral_EWSB_scalar_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_heavy_neutral_EWSB_scalar()
-    const
-    {
-
-      return heavy_neutral_EWSB_scalar_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_neutral_EWSB_pseudoscalar()
-    const
-    {
-
-      return neutral_EWSB_pseudoscalar_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_charged_EWSB_scalar()
-    const
-    {
-
-      return charged_EWSB_scalar_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_gluino()
-    const
-    {
-
-      return gluino_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sdown_L()
-    const
-    {
-
-      return sdown_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sup_L()
-    const
-    {
-
-      return sup_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sstrange_L()
-    const
-    {
-
-      return sstrange_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_scharm_L()
-    const
-    {
-
-      return scharm_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sbottom_one()
-    const
-    {
-
-      return sbottom_one_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_stop_one()
-    const
-    {
-
-      return stop_one_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sdown_R()
-    const
-    {
-
-      return sdown_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sup_R()
-    const
-    {
-
-      return sup_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sstrange_R()
-    const
-    {
-
-      return sstrange_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_scharm_R()
-    const
-    {
-
-      return scharm_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_sbottom_two()
-    const
-    {
-
-      return sbottom_two_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_stop_two()
-    const
-    {
-
-      return stop_two_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_selectron_L()
-    const
-    {
-
-      return selectron_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_electron_sneutrino_L()
-    const
-    {
-
-      return electron_sneutrino_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_smuon_L()
-    const
-    {
-
-      return smuon_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_muon_sneutrino_L()
-    const
-    {
-
-      return muon_sneutrino_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_stau_one()
-    const
-    {
-
-      return stau_one_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_tau_sneutrino_L()
-    const
-    {
-
-      return tau_sneutrino_L_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_selectron_R()
-    const
-    {
-
-      return selectron_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_electron_sneutrino_R()
-    const
-    {
-
-      return electron_sneutrino_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_smuon_R()
-    const
-    {
-
-      return smuon_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_muon_sneutrino_R()
-    const
-    {
-
-      return muon_sneutrino_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_stau_two()
-    const
-    {
-
-      return stau_two_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_tau_sneutrino_R()
-    const
-    {
-
-      return tau_sneutrino_R_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_neutralino_one()
-    const
-    {
-
-      return neutralino_one_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_neutralino_two()
-    const
-    {
-
-      return neutralino_two_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_neutralino_three()
-    const
-    {
-
-      return neutralino_three_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_neutralino_four()
-    const
-    {
-
-      return neutralino_four_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_chargino_one()
-    const
-    {
-
-      return chargino_one_pointer;
-
-    }
-
-    inline CppSLHA::particle_property_set const*
-    get_chargino_two()
-    const
-    {
-
-      return chargino_two_pointer;
-
-    }
-
+    inputHandler( CppSLHA::CppSLHA0 const* const cppSlhaPointer,
+                  CppSLHA::EW_scale_spectrum const* const spectrumPointer,
+                  std::string const pathToGrids,
+                  readierForNewPoint* const readier )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    ~inputHandler()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
     bool
-    is_in( int const given_PDG_code,
-           std::vector< CppSLHA::particle_property_set const* > const* const
-           given_collection )
+    isVerbose()
+    const
+    /* if this is true, lots of warnings will be printed. if false, the code
+     * should stay quiet without warning of the impending segmentation
+     * faults...
+     */
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    void
+    setVerbosity( bool verbosity )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    bool
+    usingNlo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    void
+    setUsingNloFlag( bool usingNloFlag )
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::string const*
+    getPathToGrids()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::string*
+    getPathToCrossSectionGrids()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::string const*
+    inspectPathToCrossSectionGrids()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::string*
+    getPathToKinematicsGrids()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::string const*
+    inspectPathToKinematicsGrids()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    CppSLHA::CppSLHA0 const*
+    getCppSlha()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    CppSLHA::EW_scale_spectrum const*
+    getSpectrum()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getElectromagneticFineStructureConstant()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getHyperchargeGaugeCoupling()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakGaugeCoupling()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getColorGaugeCoupling()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakSine()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getWeakCosine()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    readierForNewPoint*
+    getReadier()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getDown()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getUp()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getStrange()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getCharm()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getBottom()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getTop()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getElectron()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getElectronNeutrino()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getMuon()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getMuonNeutrino()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getTauLepton()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getTauNeutrino()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getGluon()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getPhoton()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getZ()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getWPlus()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getLightNeutralEwsbScalar()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getHeavyNeutralEwsbScalar()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getNeutralEwsbPseudoscalar()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getChargedEwsbScalar()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getGluino()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    getGluinoMass()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSdownL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSupL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSstrangeL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getScharmL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSbottomOne()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getStopOne()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSdownR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSupR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSstrangeR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getScharmR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSbottomTwo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getStopTwo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSelectronL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getElectronSneutrinoL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSmuonL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getMuonSneutrinoL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getStauOne()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getTauSneutrinoL()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSelectronR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getElectronSneutrinoR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getSmuonR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getMuonSneutrinoR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getStauTwo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getTauSneutrinoR()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getNeutralinoOne()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getNeutralinoTwo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getNeutralinoThree()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getNeutralinoFour()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getCharginoOne()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particlePointer
+    getCharginoTwo()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    bool
+    isIn( int const pdgCode,
+          particleVectorPointer const particleSet )
     const
     /* this checks to see if the particle with the absolute value of the given
      * PDG particle code is in the given collection. (hence it checks to see if
      * the given particle or its antiparticle are in the collection.)
      */
     /* code after the classes in this .hpp file, or in the .cpp file. */;
-
-
-    inline direct_decay_checker*
-    get_direct_decay_checker(
-                     CppSLHA::particle_property_set const* const given_decayer,
-              std::vector< CppSLHA::particle_property_set const* > const* const
-                              given_products )
+    /*directDecayChecker*
+    getDirectDecayChecker( particlePointer const decayerParticle,
+                           particleVectorPointer const productSet )
     const
-    {
-
-       return decay_checkers->get_decay_checker( given_decayer,
-                                                 given_products );
-
-    }
-
-    inline exclusive_BR_calculator*
-    get_exclusive_BR_calculator(
-                     CppSLHA::particle_property_set const* const given_decayer,
-                     CppSLHA::particle_property_set const* const given_product,
-                                 bool const product_is_not_antiparticle_flag,
-                                 std::list< int > const* const given_excluded )
+    *//* code after the classes in this .hpp file, or in the .cpp file. *///;
+    exclusiveBrCalculator*
+    getExclusiveBrCalculator( particlePointer const decayerParticle,
+                              particlePointer const productParticle,
+                              bool const productIsNotAntiparticle,
+                              std::list< int > const* const exclusionList )
     const
-    {
-
-      return exclusive_BRs->get_BR_calculator( given_decayer,
-                                               given_product,
-                                              product_is_not_antiparticle_flag,
-                                               given_excluded );
-
-    }
-
-    inline colored_cascade_set*
-    get_colored_cascade_set(
-                    CppSLHA::particle_property_set const* const given_decayer )
-    const
-    {
-
-      return colored_cascades->get_colored_cascade_set( given_decayer );
-
-    }
-
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_empty_list()
+    getEmptyList()
     const
-    {
-
-      return &empty_list;
-
-    }
-
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_jets()
+    getJets()
     const
-    {
-
-      return &jets;
-
-    }
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_jets5()
+    getJets5()
     const
-    {
-
-      return &jets5;
-
-    }
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_jets4()
+    getJets4()
     const
-    {
-
-      return &jets4;
-
-    }
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_not_in_jets5()
+    getNotInJets5()
     const
-    {
-
-      return &not_in_jets5;
-
-    }
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     std::list< int > const*
-    get_not_in_jets4()
+    getNotInJets4()
     const
-    {
-
-      return &not_in_jets4;
-
-    }
-
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_colored_sparticles()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getColoredSparticles()
     const
-    {
-
-      return &colored_sparticles;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_squarks()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSquarks()
     const
-    {
-
-      return &squarks;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_squarks5()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSquarks5()
     const
-    {
-
-      return &squarks5;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_squarks4()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSquarks4()
     const
-    {
-
-      return &squarks4;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_sdown_types()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSdownTypes()
     const
-    {
-
-      return &sdown_types;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_sup_types()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSupTypes()
     const
-    {
-
-      return &sup_types;
-
-    }
-
-    inline std::vector< signed_particle_shortcut_pair* > const*
-    get_sparticle_production_combinations()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    std::vector< signedParticleShortcutPair* > const*
+    getScoloredProductionCombinations()
     const
-    {
-
-      return &sparticle_production_combinations;
-
-    }
-
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_electroweakinos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getElectroweakinos()
     const
-    {
-
-      return &electroweakinos;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_unstable_electroweakinos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getUnstableElectroweakinos()
     const
-    {
-
-      return &unstable_electroweakinos;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_neutralinos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getNeutralinos()
     const
-    {
-
-      return &neutralinos;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_unstable_neutralinos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getUnstableNeutralinos()
     const
-    {
-
-      return &unstable_neutralinos;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_charginos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getCharginos()
     const
-    {
-
-      return &charginos;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_charged_sleptons()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getChargedSleptons()
     const
-    {
-
-      return &charged_sleptons;
-
-    }
-
-    inline std::vector< CppSLHA::particle_property_set const* > const*
-    get_sneutrinos()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getSneutrinos()
     const
-    {
-
-      return &sneutrinos;
-
-    }
-
-
-    hard_muon_from_tau const*
-    get_hard_muon_from_tau()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getNeutralEwsbScalarsAndPseudoscalars()
     const
-    {
-
-      return &hard_muon_from_tau_function;
-
-    }
-
-    soft_muon_from_tau const*
-    get_soft_muon_from_tau()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    particleVectorPointer
+    getEwsbBosonsAndMassiveVectorBosons()
     const
-    {
-
-      return &soft_muon_from_tau_function;
-
-    }
-
-    hard_pion_from_tau const*
-    get_hard_pion_from_tau()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    hardMuonFromTau const*
+    getHardMuonFromTau()
     const
-    {
-
-      return &hard_pion_from_tau_function;
-
-    }
-
-    soft_pion_from_tau const*
-    get_soft_pion_from_tau()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    softMuonFromTau const*
+    getSoftMuonFromTau()
     const
-    {
-
-      return &soft_pion_from_tau_function;
-
-    }
-
-
-    inline double
-    get_average_squarks4_mass()
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    hardPionFromTau const*
+    getHardPionFromTau()
     const
-    {
-
-      return ( 0.125 * ( get_sdown_L()->get_absolute_mass()
-                         + get_sdown_R()->get_absolute_mass()
-                         + get_sup_L()->get_absolute_mass()
-                         + get_sup_R()->get_absolute_mass()
-                         + get_sstrange_L()->get_absolute_mass()
-                         + get_sstrange_R()->get_absolute_mass()
-                         + get_scharm_L()->get_absolute_mass()
-                         + get_scharm_R()->get_absolute_mass() ) );
-
-    }
-
-
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    softPionFromTau const*
+    getSoftPionFromTau()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
     double
-    quark_or_lepton_left_handedness( int const sfermion_code,
-                                     int const EWino_code )
+    getAverageSquarks4Mass()
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+    double
+    quarkOrLeptonLeftHandedness( int const sfermionCode,
+                                 int const ewinoCode )
     const
     /* this returns the square of the coupling associated with the left-handed
      * projection operator of the Feynman rule for the vertex of the given
@@ -1200,105 +600,101 @@ namespace LHC_FASER
      * ignores the possibility of right-handed neutrinos.
      */
     /* code after the classes in this .hpp file, or in the .cpp file. */;
+    effectiveSquarkMassHolder*
+    getOnShellEffectiveSquarkMass( particlePointer onshellSquark )
+    const
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
 
   protected:
+    bool verbosity;
+    bool usingNloFlag;
+    readierForNewPoint* const readier;
+    CppSLHA::CppSLHA0 const* const cppSlhaPointer;
+    CppSLHA::EW_scale_spectrum const* const spectrumPointer;
+    std::string pathToGrids;
+    std::string pathToCrossSectionGrids;
+    std::string pathToKinematicsGrids;
 
-    readier_for_new_point* const readier;
-    bool verbosity_flag;
-    bool using_NLO_flag;
+    particlePointer const downPointer;
+    particlePointer const upPointer;
+    particlePointer const strangePointer;
+    particlePointer const charmPointer;
+    particlePointer const bottomPointer;
+    particlePointer const topPointer;
+    particlePointer const electronPointer;
+    particlePointer const electronNeutrinoPointer;
+    particlePointer const muonPointer;
+    particlePointer const muonNeutrinoPointer;
+    particlePointer const tauLeptonPointer;
+    particlePointer const tauNeutrinoPointer;
+    particlePointer const gluonPointer;
+    particlePointer const photonPointer;
+    particlePointer const zPointer;
+    particlePointer const wPlusPointer;
 
-
-    CppSLHA::CppSLHA0 const* const CppSLHA_pointer;
-    CppSLHA::EW_scale_spectrum const* const spectrum_pointer;
-
-    std::string path_to_grids;
-    std::string path_to_cross_section_grids;
-    std::string path_to_kinematics_grids;
-
-    CppSLHA::particle_property_set const* const down_pointer;
-    CppSLHA::particle_property_set const* const up_pointer;
-    CppSLHA::particle_property_set const* const strange_pointer;
-    CppSLHA::particle_property_set const* const charm_pointer;
-    CppSLHA::particle_property_set const* const bottom_pointer;
-    CppSLHA::particle_property_set const* const top_pointer;
-    CppSLHA::particle_property_set const* const electron_pointer;
-    CppSLHA::particle_property_set const* const electron_neutrino_pointer;
-    CppSLHA::particle_property_set const* const muon_pointer;
-    CppSLHA::particle_property_set const* const muon_neutrino_pointer;
-    CppSLHA::particle_property_set const* const tau_lepton_pointer;
-    CppSLHA::particle_property_set const* const tau_neutrino_pointer;
-    CppSLHA::particle_property_set const* const gluon_pointer;
-    CppSLHA::particle_property_set const* const photon_pointer;
-    CppSLHA::particle_property_set const* const Z_pointer;
-    CppSLHA::particle_property_set const* const W_plus_pointer;
-
-    CppSLHA::particle_property_set const* const
-    light_neutral_EWSB_scalar_pointer;
-    CppSLHA::particle_property_set const* const
-    heavy_neutral_EWSB_scalar_pointer;
-    CppSLHA::particle_property_set const* const
-    neutral_EWSB_pseudoscalar_pointer;
-    CppSLHA::particle_property_set const* const charged_EWSB_scalar_pointer;
-    CppSLHA::particle_property_set const* const gluino_pointer;
-    CppSLHA::particle_property_set const* const sdown_L_pointer;
-    CppSLHA::particle_property_set const* const sup_L_pointer;
-    CppSLHA::particle_property_set const* const sstrange_L_pointer;
-    CppSLHA::particle_property_set const* const scharm_L_pointer;
-    CppSLHA::particle_property_set const* const sbottom_one_pointer;
-    CppSLHA::particle_property_set const* const stop_one_pointer;
-    CppSLHA::particle_property_set const* const sdown_R_pointer;
-    CppSLHA::particle_property_set const* const sup_R_pointer;
-    CppSLHA::particle_property_set const* const sstrange_R_pointer;
-    CppSLHA::particle_property_set const* const scharm_R_pointer;
-    CppSLHA::particle_property_set const* const sbottom_two_pointer;
-    CppSLHA::particle_property_set const* const stop_two_pointer;
-    CppSLHA::particle_property_set const* const selectron_L_pointer;
-    CppSLHA::particle_property_set const* const electron_sneutrino_L_pointer;
-    CppSLHA::particle_property_set const* const smuon_L_pointer;
-    CppSLHA::particle_property_set const* const muon_sneutrino_L_pointer;
-    CppSLHA::particle_property_set const* const stau_one_pointer;
-    CppSLHA::particle_property_set const* const tau_sneutrino_L_pointer;
-    CppSLHA::particle_property_set const* const selectron_R_pointer;
-    CppSLHA::particle_property_set const* const electron_sneutrino_R_pointer;
-    CppSLHA::particle_property_set const* const smuon_R_pointer;
-    CppSLHA::particle_property_set const* const muon_sneutrino_R_pointer;
-    CppSLHA::particle_property_set const* const stau_two_pointer;
-    CppSLHA::particle_property_set const* const tau_sneutrino_R_pointer;
-    CppSLHA::particle_property_set const* const neutralino_one_pointer;
-    CppSLHA::particle_property_set const* const neutralino_two_pointer;
-    CppSLHA::particle_property_set const* const neutralino_three_pointer;
-    CppSLHA::particle_property_set const* const neutralino_four_pointer;
-    CppSLHA::particle_property_set const* const chargino_one_pointer;
-    CppSLHA::particle_property_set const* const chargino_two_pointer;
-
+    particlePointer const lightNeutralEwsbScalarPointer;
+    particlePointer const heavyNeutralEwsbScalarPointer;
+    particlePointer const neutralEwsbPseudoscalarPointer;
+    particlePointer const chargedEwsbScalarPointer;
+    particlePointer const gluinoPointer;
+    particlePointer const sdownLPointer;
+    particlePointer const supLPointer;
+    particlePointer const sstrangeLPointer;
+    particlePointer const scharmLPointer;
+    particlePointer const sbottomOnePointer;
+    particlePointer const stopOnePointer;
+    particlePointer const sdownRPointer;
+    particlePointer const supRPointer;
+    particlePointer const sstrangeRPointer;
+    particlePointer const scharmRPointer;
+    particlePointer const sbottomTwoPointer;
+    particlePointer const stopTwoPointer;
+    particlePointer const selectronLPointer;
+    particlePointer const electronSneutrinoLPointer;
+    particlePointer const smuonLPointer;
+    particlePointer const muonSneutrinoLPointer;
+    particlePointer const stauOnePointer;
+    particlePointer const tauSneutrinoLPointer;
+    particlePointer const selectronRPointer;
+    particlePointer const electronSneutrinoRPointer;
+    particlePointer const smuonRPointer;
+    particlePointer const muonSneutrinoRPointer;
+    particlePointer const stauTwoPointer;
+    particlePointer const tauSneutrinoRPointer;
+    particlePointer const neutralinoOnePointer;
+    particlePointer const neutralinoTwoPointer;
+    particlePointer const neutralinoThreePointer;
+    particlePointer const neutralinoFourPointer;
+    particlePointer const charginoOnePointer;
+    particlePointer const charginoTwoPointer;
 
     // a few useful SLHA BLOCK shortcuts:
-    CppSLHA::SLHA_BLOCK const* NMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* UMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* VMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* SBOTMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* STOPMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* STAUMIX_pointer;
-    CppSLHA::SLHA_BLOCK const* YD_pointer;
-    CppSLHA::SLHA_BLOCK const* YU_pointer;
-    CppSLHA::SLHA_BLOCK const* YE_pointer;
+    CppSLHA::SLHA_BLOCK const* nmixPointer;
+    CppSLHA::SLHA_BLOCK const* umixPointer;
+    CppSLHA::SLHA_BLOCK const* vmixPointer;
+    CppSLHA::SLHA_BLOCK const* sbotmixPointer;
+    CppSLHA::SLHA_BLOCK const* stopmixPointer;
+    CppSLHA::SLHA_BLOCK const* staumixPointer;
+    CppSLHA::SLHA_BLOCK const* ydPointer;
+    CppSLHA::SLHA_BLOCK const* yuPointer;
+    CppSLHA::SLHA_BLOCK const* yePointer;
 
-    update_dependent_inputs* update_dependent_input_values;
+    updateDependentGaugeInputs* updateDependentInputValues;
+    updateDependentAbsoluteMasses* updateDependentMasses;
+    updateDependentAverageMass* updateDependentAverageSquarks4Mass;
 
-
-    std::list< int > empty_list;
-    // empty_list is there for when we don't care about excluding particles.
-
+    std::list< int > emptyList;
+    // emptyList is there for when we don't care about excluding particles.
     /* the following std::list< int > are lists of PDG codes for particles:
      * jets refers to all the particles in the spectrum which return true for
      * counts_as_jet(), as well as their antiparticles, unless they are
      * self-conjugate.
-     * not_in_jets5 is just top & antitop, & not_in_jets4 is not_in_jets5 plus
+     * notInJets5 is just top & antitop, & notInJets4 is notInJets5 plus
      * bottom & antibottom.
      * jets5 is jets minus everything in not_int_jets5, likewise jets4 is jets
      * minus everything in not_int_jets4.
      * other exotic heavy quarks should either be labelled as not counting as
-     * a jet in the spectrum, or put in not_in_jets5 in the same manner as top.
+     * a jet in the spectrum, or put in notInJets5 in the same manner as top.
      * hence, without additional light jet particles, jets5 is
      * { gluon + the 5 light quarks (down, up, strange, charm, bottom)
      * + the 5 light antiquarks }, & jets4 is jets5 with bottom & antibottom
@@ -1307,49 +703,929 @@ namespace LHC_FASER
     std::list< int > jets;
     std::list< int > jets5;
     std::list< int > jets4;
-    std::list< int > not_in_jets5;
-    std::list< int > not_in_jets4;
+    std::list< int > notInJets5;
+    std::list< int > notInJets4;
 
-    std::vector< CppSLHA::particle_property_set const* >
-    colored_sparticles;
-
+    std::vector< particlePointer > coloredSparticles;
     // squarks4 refers to { sdown, sup, sstrange, scharm }, while squarks5
     // is squarks4 plus sbottom, & squarks is squarks5 plus stop.
-    std::vector< CppSLHA::particle_property_set const* > squarks;
-    std::vector< CppSLHA::particle_property_set const* > squarks5;
-    std::vector< CppSLHA::particle_property_set const* > squarks4;
+    std::vector< particlePointer > squarks;
+    std::vector< particlePointer > squarks5;
+    std::vector< particlePointer > squarks4;
+    std::vector< particlePointer > sdownTypes;
+    std::vector< particlePointer > supTypes;
+    std::vector< signedParticleShortcutPair* >
+    sparticleProductionCombinations;
+    std::vector< onshellSquarkMassHolder* > onshellSquarkEffectiveMasses;
 
-    std::vector< CppSLHA::particle_property_set const* > sdown_types;
-    std::vector< CppSLHA::particle_property_set const* > sup_types;
+    std::vector< particlePointer > electroweakinos;
+    std::vector< particlePointer > unstableElectroweakinos;
+    std::vector< particlePointer > neutralinos;
+    std::vector< particlePointer > unstableNeutralinos;
+    std::vector< particlePointer > charginos;
+    std::vector< particlePointer > chargedSleptons;
+    std::vector< particlePointer > sneutrinos;
 
-    std::vector< signed_particle_shortcut_pair* >
-    sparticle_production_combinations;
+    std::vector< particlePointer > neutralEwsbScalarsAndPseudoscalars;
+    std::vector< particlePointer > ewsbBosonsAndMassiveVectorBosons;
 
-    std::vector< CppSLHA::particle_property_set const* > electroweakinos;
-    std::vector< CppSLHA::particle_property_set const* >
-    unstable_electroweakinos;
-    std::vector< CppSLHA::particle_property_set const* > neutralinos;
-    std::vector< CppSLHA::particle_property_set const* > unstable_neutralinos;
-    std::vector< CppSLHA::particle_property_set const* > charginos;
-    std::vector< CppSLHA::particle_property_set const* > charged_sleptons;
-    std::vector< CppSLHA::particle_property_set const* > sneutrinos;
+    //decayCheckerHandler* decayCheckers;
+    exclusiveBrHandler* exclusiveBrs;
 
-    decay_checker_handler* decay_checkers;
-    exclusive_BR_handler* exclusive_BRs;
-    colored_cascade_handler* colored_cascades;
+    hardMuonFromTau hardMuonFromTauFunction;
+    softMuonFromTau softMuonFromTauFunction;
+    hardPionFromTau hardPionFromTauFunction;
+    softPionFromTau softPionFromTauFunction;
 
-    hard_muon_from_tau hard_muon_from_tau_function;
-    soft_muon_from_tau soft_muon_from_tau_function;
-    hard_pion_from_tau hard_pion_from_tau_function;
-    soft_pion_from_tau soft_pion_from_tau_function;
-
-  };  // end of input_handler class.
+    void
+    addSquarkAsColoredSparticleAndInProduction(
+                                            particlePointer const inputSquark )
+    /* this adds the given squark to the list of squarks & the list of colored
+     * sparticles, & also adds its relevant production combinations (with
+     * a gluino, with its antisquark, with itself) to the list.
+     */
+    /* code after the classes in this .hpp file, or in the .cpp file. */;
+  };  // end of inputHandler class.
 
 
 
 
   // inline functions:
-  // none
+
+  inline double
+  updateDependentGaugeInputs::getElectromagneticFineStructureConstant()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return electromagneticFineStructureConstant;
+  }
+
+  inline double
+  updateDependentGaugeInputs::getHyperchargeGaugeCoupling()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return hyperchargeGaugeCoupling;
+  }
+
+  inline double
+  updateDependentGaugeInputs::getWeakGaugeCoupling()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return weakGaugeCoupling;
+  }
+
+  inline double
+  updateDependentGaugeInputs::getColorGaugeCoupling()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return colorGaugeCoupling;
+  }
+
+  inline double
+  updateDependentGaugeInputs::getWeakSine()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return weakSine;
+  }
+
+  inline double
+  updateDependentGaugeInputs::getWeakCosine()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      calculateGaugeCouplings();
+      finishPreparingForThisPoint();
+    }
+    return weakCosine;
+  }
+
+
+
+  inline double
+  updateDependentAbsoluteMasses::getGluinoMass()
+  {
+    if( needsToPrepareForThisPoint() )
+      {
+        gluinoMass = gluinoPointer->get_absolute_mass();
+        finishPreparingForThisPoint();
+      }
+    return gluinoMass;
+  }
+
+
+
+  inline double
+  updateDependentAverageMass::getAverageMass()
+  {
+    if( needsToPrepareForThisPoint() )
+    {
+      averageMass = 0.0;
+      for( std::vector< particlePointer >::const_iterator
+           particleIterator = setPointer->begin();
+           setPointer->end() > particleIterator;
+           ++particleIterator )
+      {
+        averageMass += (*particleIterator)->get_absolute_mass();
+      }
+      averageMass *= ( 1.0 / (double)setPointer->size() );
+      finishPreparingForThisPoint();
+    }
+    return averageMass;
+  }
+
+
+
+  inline bool
+  inputHandler::isVerbose()
+  const
+  // if this is true, lots of warnings will be printed. if false, the code
+  // should stay quiet without warning of the impending segmentation faults...
+  {
+    return verbosity;
+  }
+
+  inline void
+  inputHandler::setVerbosity( bool verbosity )
+  {
+    this->verbosity = verbosity;
+  }
+
+  inline bool
+  inputHandler::usingNlo()
+  const
+  {
+    return usingNloFlag;
+  }
+
+  inline void
+  inputHandler::setUsingNloFlag( bool usingNloFlag )
+  {
+    this->usingNloFlag = usingNloFlag;
+  }
+
+  inline std::string const*
+  inputHandler::getPathToGrids()
+  const
+  {
+    return &pathToGrids;
+  }
+
+  inline std::string*
+  inputHandler::getPathToCrossSectionGrids()
+  {
+    return &pathToCrossSectionGrids;
+  }
+
+  inline std::string*
+  inputHandler::getPathToKinematicsGrids()
+  {
+    return &pathToKinematicsGrids;
+  }
+
+  inline std::string const*
+  inputHandler::inspectPathToCrossSectionGrids()
+  const
+  {
+    return &pathToCrossSectionGrids;
+  }
+
+  inline std::string const*
+  inputHandler::inspectPathToKinematicsGrids()
+  const
+  {
+    return &pathToKinematicsGrids;
+  }
+
+  inline CppSLHA::CppSLHA0 const*
+  inputHandler::getCppSlha()
+  const
+  {
+    return cppSlhaPointer;
+  }
+
+  inline CppSLHA::EW_scale_spectrum const*
+  inputHandler::getSpectrum()
+  const
+  {
+    return spectrumPointer;
+  }
+
+  inline double
+  inputHandler::getElectromagneticFineStructureConstant()
+  const
+  {
+    return
+    updateDependentInputValues->getElectromagneticFineStructureConstant();
+  }
+
+  inline double
+  inputHandler::getHyperchargeGaugeCoupling()
+  const
+  {
+    return updateDependentInputValues->getHyperchargeGaugeCoupling();
+  }
+
+  inline double
+  inputHandler::getWeakGaugeCoupling()
+  const
+  {
+    return updateDependentInputValues->getWeakGaugeCoupling();
+  }
+
+  inline double
+  inputHandler::getColorGaugeCoupling()
+  const
+  {
+    return updateDependentInputValues->getColorGaugeCoupling();
+  }
+
+  inline double
+  inputHandler::getWeakSine()
+  const
+  {
+    return updateDependentInputValues->getWeakSine();
+  }
+
+  inline double
+  inputHandler::getWeakCosine()
+  const
+  {
+    return updateDependentInputValues->getWeakCosine();
+  }
+
+  inline readierForNewPoint*
+  inputHandler::getReadier()
+  const
+  {
+    return readier;
+  }
+
+  inline particlePointer
+  inputHandler::getDown()
+  const
+  {
+    return downPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getUp()
+  const
+  {
+    return upPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getStrange()
+  const
+  {
+    return strangePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getCharm()
+  const
+  {
+    return charmPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getBottom()
+  const
+  {
+    return bottomPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getTop()
+  const
+  {
+    return topPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getElectron()
+  const
+  {
+    return electronPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getElectronNeutrino()
+  const
+  {
+    return electronNeutrinoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getMuon()
+  const
+  {
+    return muonPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getMuonNeutrino()
+  const
+  {
+    return muonNeutrinoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getTauLepton()
+  const
+  {
+    return tauLeptonPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getTauNeutrino()
+  const
+  {
+    return tauNeutrinoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getGluon()
+  const
+  {
+    return gluonPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getPhoton()
+  const
+  {
+    return photonPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getZ()
+  const
+  {
+    return zPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getWPlus()
+  const
+  {
+    return wPlusPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getLightNeutralEwsbScalar()
+  const
+  {
+    return lightNeutralEwsbScalarPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getHeavyNeutralEwsbScalar()
+  const
+  {
+    return heavyNeutralEwsbScalarPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getNeutralEwsbPseudoscalar()
+  const
+  {
+    return neutralEwsbPseudoscalarPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getChargedEwsbScalar()
+  const
+  {
+    return chargedEwsbScalarPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getGluino()
+  const
+  {
+    return gluinoPointer;
+  }
+
+  inline double
+  inputHandler::getGluinoMass()
+  const
+  {
+    return updateDependentMasses->getGluinoMass();
+  }
+
+  inline particlePointer
+  inputHandler::getSdownL()
+  const
+  {
+    return sdownLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSupL()
+  const
+  {
+    return supLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSstrangeL()
+  const
+  {
+    return sstrangeLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getScharmL()
+  const
+  {
+    return scharmLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSbottomOne()
+  const
+  {
+    return sbottomOnePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getStopOne()
+  const
+  {
+    return stopOnePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSdownR()
+  const
+  {
+    return sdownRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSupR()
+  const
+  {
+    return supRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSstrangeR()
+  const
+  {
+    return sstrangeRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getScharmR()
+  const
+  {
+    return scharmRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSbottomTwo()
+  const
+  {
+    return sbottomTwoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getStopTwo()
+  const
+  {
+    return stopTwoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSelectronL()
+  const
+  {
+    return selectronLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getElectronSneutrinoL()
+  const
+  {
+    return electronSneutrinoLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSmuonL()
+  const
+  {
+    return smuonLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getMuonSneutrinoL()
+  const
+  {
+    return muonSneutrinoLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getStauOne()
+  const
+  {
+    return stauOnePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getTauSneutrinoL()
+  const
+  {
+    return tauSneutrinoLPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSelectronR()
+  const
+  {
+    return selectronRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getElectronSneutrinoR()
+  const
+  {
+    return electronSneutrinoRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getSmuonR()
+  const
+  {
+    return smuonRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getMuonSneutrinoR()
+  const
+  {
+    return muonSneutrinoRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getStauTwo()
+  const
+  {
+    return stauTwoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getTauSneutrinoR()
+  const
+  {
+    return tauSneutrinoRPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getNeutralinoOne()
+  const
+  {
+    return neutralinoOnePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getNeutralinoTwo()
+  const
+  {
+    return neutralinoTwoPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getNeutralinoThree()
+  const
+  {
+    return neutralinoThreePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getNeutralinoFour()
+  const
+  {
+    return neutralinoFourPointer;
+  }
+
+  inline particlePointer
+  inputHandler::getCharginoOne()
+  const
+  {
+    return charginoOnePointer;
+  }
+
+  inline particlePointer
+  inputHandler::getCharginoTwo()
+  const
+  {
+    return charginoTwoPointer;
+  }
+
+  inline bool
+  inputHandler::isIn( int const pdgCode,
+                      particleVectorPointer const particleSet )
+  const
+  /* this checks to see if the particle with the absolute value of the given
+   * PDG particle code is in the given collection. (hence it checks to see if
+   * the given particle or its antiparticle are in the collection.)
+   */
+  {
+    bool returnBool = false;
+    for( std::vector< particlePointer >::const_iterator
+         setIterator = particleSet->begin();
+         particleSet->end() > setIterator;
+         ++setIterator )
+    {
+      if( ( pdgCode == (*setIterator)->get_PDG_code() )
+          ||
+          ( pdgCode == -(*setIterator)->get_PDG_code() ) )
+      {
+        returnBool = true;
+      }
+    }
+    return returnBool;
+  }
+
+  /*inline directDecayChecker*
+  inputHandler:: getDirectDecayChecker( particlePointer const decayingParticle,
+                                       particleVectorPointer const productSet )
+  const
+  {
+    return decayCheckers->getDecayChecker( decayingParticle,
+                                           productSet );
+  }*/
+
+  inline exclusiveBrCalculator*
+  inputHandler::getExclusiveBrCalculator(
+                                        particlePointer const decayingParticle,
+                                         particlePointer const productParticle,
+                                          bool const productIsNotAntiparticle,
+                                  std::list< int > const* const exclusionList )
+  const
+  {
+    return exclusiveBrs->getBrCalculator( decayingParticle,
+                                          productParticle,
+                                          productIsNotAntiparticle,
+                                          exclusionList );
+  }
+
+  inline std::list< int > const*
+  inputHandler::getEmptyList()
+  const
+  {
+    return &emptyList;
+  }
+
+  inline std::list< int > const*
+  inputHandler::getJets()
+  const
+  {
+    return &jets;
+  }
+
+  inline std::list< int > const*
+  inputHandler::getJets5()
+  const
+  {
+    return &jets5;
+  }
+
+  inline std::list< int > const*
+  inputHandler::getJets4()
+  const
+  {
+    return &jets4;
+  }
+
+  inline std::list< int > const*
+  inputHandler::getNotInJets5()
+  const
+  {
+    return &notInJets5;
+  }
+
+  inline std::list< int > const*
+  inputHandler::getNotInJets4()
+  const
+  {
+    return &notInJets4;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getColoredSparticles()
+  const
+  {
+    return &coloredSparticles;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSquarks()
+  const
+  {
+    return &squarks;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSquarks5()
+  const
+  {
+    return &squarks5;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSquarks4()
+  const
+  {
+    return &squarks4;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSdownTypes()
+  const
+  {
+    return &sdownTypes;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSupTypes()
+  const
+  {
+    return &supTypes;
+  }
+
+  inline std::vector< signedParticleShortcutPair* > const*
+  inputHandler::getScoloredProductionCombinations()
+  const
+  {
+    return &sparticleProductionCombinations;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getElectroweakinos()
+  const
+  {
+    return &electroweakinos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getUnstableElectroweakinos()
+  const
+  {
+    return &unstableElectroweakinos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getNeutralinos()
+  const
+  {
+    return &neutralinos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getUnstableNeutralinos()
+  const
+  {
+    return &unstableNeutralinos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getCharginos()
+  const
+  {
+    return &charginos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getChargedSleptons()
+  const
+  {
+    return &chargedSleptons;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getSneutrinos()
+  const
+  {
+    return &sneutrinos;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getNeutralEwsbScalarsAndPseudoscalars()
+  const
+  {
+    return &neutralEwsbScalarsAndPseudoscalars;
+  }
+
+  inline particleVectorPointer
+  inputHandler::getEwsbBosonsAndMassiveVectorBosons()
+  const
+  {
+    return &ewsbBosonsAndMassiveVectorBosons;
+  }
+
+  inline hardMuonFromTau const*
+  inputHandler::getHardMuonFromTau()
+  const
+  {
+    return &hardMuonFromTauFunction;
+  }
+
+  inline softMuonFromTau const*
+  inputHandler::getSoftMuonFromTau()
+  const
+  {
+    return &softMuonFromTauFunction;
+  }
+
+  inline hardPionFromTau const*
+  inputHandler::getHardPionFromTau()
+  const
+  {
+    return &hardPionFromTauFunction;
+  }
+
+  inline softPionFromTau const*
+  inputHandler::getSoftPionFromTau()
+  const
+  {
+    return &softPionFromTauFunction;
+  }
+
+  inline double
+  inputHandler::getAverageSquarks4Mass()
+  const
+  {
+    return updateDependentAverageSquarks4Mass->getAverageMass();
+  }
+
+  inline void
+  inputHandler::addSquarkAsColoredSparticleAndInProduction(
+                                            particlePointer const inputSquark )
+  /* this adds the given squark to the list of squarks & the list of colored
+   * sparticles, & also adds its relevant production combinations (with a
+   * gluino, with its antisquark, with itself) to the list.
+   */
+  {
+    squarks.push_back( inputSquark );
+    coloredSparticles.push_back( inputSquark );
+    sparticleProductionCombinations.push_back(
+                                   new signedParticleShortcutPair( inputSquark,
+                                                                   true,
+                                                                 gluinoPointer,
+                                                                   true ) );
+    sparticleProductionCombinations.push_back(
+                                   new signedParticleShortcutPair( inputSquark,
+                                                                   true,
+                                                                   inputSquark,
+                                                                   false ) );
+    sparticleProductionCombinations.push_back(
+                                   new signedParticleShortcutPair( inputSquark,
+                                                                   true,
+                                                                   inputSquark,
+                                                                   true ) );
+    onshellSquarkEffectiveMasses.push_back(
+                                  new onshellSquarkMassHolder( inputSquark ) );
+  }
+
+  inline effectiveSquarkMassHolder*
+  inputHandler::getOnShellEffectiveSquarkMass( particlePointer onshellSquark )
+  const
+  {
+    effectiveSquarkMassHolder* returnPointer( NULL );
+    for( std::vector< onshellSquarkMassHolder* >::const_iterator
+         squarkIterator( onshellSquarkEffectiveMasses.begin() );
+         onshellSquarkEffectiveMasses.end() > squarkIterator;
+         ++squarkIterator )
+    {
+      if( (*squarkIterator)->getOnshellSquark() == onshellSquark )
+      {
+        returnPointer = *squarkIterator;
+      }
+    }
+    return returnPointer;
+  }
 
 }
 
