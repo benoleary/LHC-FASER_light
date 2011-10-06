@@ -6,6 +6,8 @@
  *      Copyright 2011 Ben O'Leary
  *
  *      This file is part of "LHC-FASER Light".
+ *      "LHC-FASER Light" is publically available from its GitHub repository:
+ *      https://github.com/benoleary/LHC-FASER_light
  *
  *      "LHC-FASER Light" is free software: you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License as
@@ -23,23 +25,26 @@
  *
  *      The GNU General Public License should be in GNU_public_license.txt
  *      the files of "LHC-FASER Light" are:
+ *      LHC-FASER_base_lepton_distribution_stuff.hpp
+ *      LHC-FASER_base_lepton_distribution_stuff.cpp
  *      LHC-FASER_cross-section_stuff.hpp
  *      LHC-FASER_cross-section_stuff.cpp
  *      LHC-FASER_global_stuff.hpp
  *      LHC-FASER_global_stuff.cpp
  *      LHC-FASER_input_handling_stuff.hpp
  *      LHC-FASER_input_handling_stuff.cpp
- *      LHC-FASER_lepton_distributions.hpp
- *      LHC-FASER_lepton_distributions.cpp
  *      LHC-FASER_light.hpp
+ *      LHC-FASER_light.cpp
  *      LHC-FASER_light_tester_main.cpp
  *      LHC-FASER_sparticle_decay_stuff.hpp
  *      LHC-FASER_sparticle_decay_stuff.cpp
+ *      LHC-FASER_template_classes.cpp
  *      Makefile
  *      README.txt
  *      and the CppSLHA library, which is released under its own GNU GPL.
- *      (An example spectrum file in SLHA format for SPS1a is included,
- *      SPS1a_spectrum.txt, which was created with SPheno.)
+ *      (2 example spectrum files in SLHA format for SPS1a is included,
+ *      SPS1a_spectrum.txt & SPS2_spectrum.txt, which were created with
+ *      SPheno.)
  */
 
 #ifndef LHC_FASER_LIGHT_HPP_
@@ -75,6 +80,10 @@ namespace LHC_FASER
     updateForNewSlhaFile( std::string const slhaSpectrumFile );
     std::string const*
     getExampleOutput();
+    double
+    getSumOfNloCrossSectionsAtSevenTeV();
+    double
+    getSumOfNloCrossSectionsAtFourteenTeV();
 
   protected:
     CppSLHA::CppSLHA2 slhaData;
@@ -91,6 +100,8 @@ namespace LHC_FASER
                      int const beamEnergy,
                      int const firstSparticlePdgCode,
                      int const secondSparticlePdgCode );
+    double
+    getSumOfNloCrossSections( int const beamEnergy );
   };
 
 
@@ -152,6 +163,36 @@ namespace LHC_FASER
   {
     slhaData.read_file( slhaSpectrumFile );
     localReadier.readyObserversForNewPoint();
+  }
+
+  inline double
+  lhcFaserLight::getSumOfNloCrossSectionsAtSevenTeV()
+  {
+    return getSumOfNloCrossSections( 7 );
+  }
+
+  inline double
+  lhcFaserLight::getSumOfNloCrossSectionsAtFourteenTeV()
+  {
+    return getSumOfNloCrossSections( 14 );
+  }
+
+  inline double
+  lhcFaserLight::getSumOfNloCrossSections( int const beamEnergy )
+  {
+    double returnValue( 0.0 );
+    for( std::vector< signedParticleShortcutPair* >::const_iterator
+         channelIterator(
+                      nloInput->getScoloredProductionCombinations()->begin() );
+         nloInput->getScoloredProductionCombinations()->end()
+         > channelIterator;
+         ++channelIterator )
+    {
+      returnValue
+      += nloCrossSectionHandler->getTable( beamEnergy,
+                                           *channelIterator )->getValue();
+    }
+    return returnValue;
   }
 
 }  // end of LHC_FASER namespace

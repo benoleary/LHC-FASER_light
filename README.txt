@@ -6,6 +6,8 @@
  *      Copyright 2011 Ben O'Leary
  *
  *      This file is part of "LHC-FASER Light".
+ *      "LHC-FASER Light" is publically available from its GitHub repository:
+ *      https://github.com/benoleary/LHC-FASER_light
  *
  *      "LHC-FASER Light" is free software: you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License as
@@ -22,19 +24,27 @@
  *      <http://www.gnu.org/licenses/>.
  *
  *      The GNU General Public License should be in GNU_public_license.txt
- *      the files of "LHC-FASER light" are:
+ *      the files of "LHC-FASER Light" are:
+ *      LHC-FASER_base_lepton_distribution_stuff.hpp
+ *      LHC-FASER_base_lepton_distribution_stuff.cpp
  *      LHC-FASER_cross-section_stuff.hpp
  *      LHC-FASER_cross-section_stuff.cpp
  *      LHC-FASER_global_stuff.hpp
  *      LHC-FASER_global_stuff.cpp
  *      LHC-FASER_input_handling_stuff.hpp
  *      LHC-FASER_input_handling_stuff.cpp
- *      LHC-FASER_lepton_distributions.hpp
- *      LHC-FASER_lepton_distributions.cpp
+ *      LHC-FASER_light.hpp
+ *      LHC-FASER_light.cpp
  *      LHC-FASER_light_tester_main.cpp
  *      LHC-FASER_sparticle_decay_stuff.hpp
  *      LHC-FASER_sparticle_decay_stuff.cpp
+ *      LHC-FASER_template_classes.cpp
+ *      Makefile
+ *      README.txt
  *      and the CppSLHA library, which is released under its own GNU GPL.
+ *      (2 example spectrum files in SLHA format for SPS1a is included,
+ *      SPS1a_spectrum.txt & SPS2_spectrum.txt, which were created with
+ *      SPheno.)
  */
 
 /* This program is to demonstrate the classes that form LHC-FASER Light, a
@@ -73,41 +83,16 @@
  * g++ ./LHC-FASER_light/*.cpp ./LHC-FASER_light/CppSLHA/*.cpp which should do
  * the trick, remembering to remove or rename LHC-FASER_light_tester_main.cpp
  * first).
- * The code on lines 74 to 80 of LHC-FASER_light_tester_main.cpp reads in the
- * SLHA spectrum and sets up where to find the grids. This is a little more
- * lengthy than it could be, but in the full version of LHC-FASER, most of that
- * is taken care of automatically. I hope that what's going on is clear enough:
- * there's a CppSLHA::CppSLHA2 object which is given a name for a file to read
- * in; there's a LHC_FASER::readier_for_new_point object which is necessary for
- * resetting parts of the calculation (most of the code objects cache values,
- * and need a LHC_FASER::readier_for_new_point to tell them when to recalculate
- * their cached values); and there is a LHC_FASER::input_handler object which
- * further interprets the SLHA file that was read in by the CppSLHA::CppSLHA2
- * object.
- * (On line 87, whether NLO K-factors are used or not is set by
- * inputs.set_using_NLO(), but it is true by default.)
- * On lines 88 to 92, a LHC_FASER::cross_section_handler object is
- * created and pointers to a LHC_FASER::cross_section_table_set for 7 TeV and
- * for 14 TeV are obtained. These then provide LHC_FASER::cross_section_table
- * pointers for various colored sparticle production combinations. To get a
- * LHC_FASER::cross_section_table pointer for e.g. sdown_L + gluino, a
- * LHC_FASER::signed_particle_shortcut_pair needs to be created (a list of all
- * the signed_particle_shortcut_pairs is created automatically in the
- * input_handler, but I did not write code to get individual 
- * signed_particle_shortcut_pairs directly). This can be done e.g. with
- * LHC_FASER::signed_particle_shortcut_pair
- * sdownLPlusGluino( inputs.get_sdown_L(),
- *                   true,
- *                   inputs.get_gluino(),
- *                   true );
- * which constructs the relevant object.
- * LHC_FASER::cross_section_table_set::get_table( &sdownLPlusGluino ) now gives
- * the LHC_FASER::cross_section_table pointer which provides the cross-section
- * for sdown_L+gluino with LHC_FASER::cross_section_table::get_value().
- * 
- * That's about it. Oh, LHC_FASER::readier_for_new_point::ready_for_new_point()
- * should be used to clear the cached values and let the objects know that
- * LHC_FASER::cross_section_table::get_value() should calculate the value
- * afresh, and also CppSLHA::CppSLHA2::read_file() should be used to read in
- * new sparticle masses.
+ * Then it's just a matter of creating an instance of the lhcFaserLight class,
+ * as on line 79 of LHC-FASER_light_tester_main.cpp, and using the public
+ * functions getLoSevenTevCrossSection( int, int ),
+ * getNloSevenTevCrossSection( int, int ),
+ * getLoFourteenTevCrossSection( int, int ), &
+ * getLoFourteenTevCrossSection( int, int ), where the argument ints are the
+ * PDG codes for the required sparticles. This is demonstrated in the rest of
+ * the file, along with how to make the lhcFaserLight object use a spectrum
+ * from a different file, with updateForNewSlhaFile( std::string ), as shown on
+ * line 202 of the LHC-FASER_light_tester_main.cpp file. If the file name has
+ * not changed, but the file has been overwritten with new data,
+ * updateForNewSlhaFile() can be used with no arguments.
  */
