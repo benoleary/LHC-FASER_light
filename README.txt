@@ -95,4 +95,13 @@
  * line 202 of the LHC-FASER_light_tester_main.cpp file. If the file name has
  * not changed, but the file has been overwritten with new data,
  * updateForNewSlhaFile() can be used with no arguments.
+ * the lhcFaserLight constructor can also be given a 2nd argument string, with
+ * a different path to the directory where the "cross-sections" directory is.
+ * By default, it is "./NLO_grids", but if, for example, you want to run the
+ * code in a different directory & want to use an absolute path to the grids,
+ * you could call the constructor with the arguments
+ * "/absolute/path/to/SLHA/file/exampleSpectrum.txt"
+ * "/absolute/path/to/grids"
+ * if the "cross-sections" directory is /absolute/path/to/grids/cross-sections/
+ * for example.
  */

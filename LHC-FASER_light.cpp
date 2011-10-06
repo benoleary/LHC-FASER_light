@@ -51,19 +51,20 @@
 
 namespace LHC_FASER
 {
-  lhcFaserLight::lhcFaserLight( std::string const slhaSpectrumFileName ) :
+  lhcFaserLight::lhcFaserLight( std::string const slhaSpectrumFileName,
+                                std::string const pathToGrids ) :
     slhaData( slhaSpectrumFileName )
   {
     loInput = new inputHandler( &slhaData,
-                                  slhaData.get_particle_spectrum(),
-                                  "./NLO_grids",
-                                  &localReadier );
+                                slhaData.get_particle_spectrum(),
+                                pathToGrids,
+                                &localReadier );
     loInput->setUsingNloFlag( false );
     loCrossSectionHandler = new crossSectionHandler( loInput );
     nloInput = new inputHandler( &slhaData,
-                                  slhaData.get_particle_spectrum(),
-                                  "./NLO_grids",
-                                  &localReadier );
+                                 slhaData.get_particle_spectrum(),
+                                 pathToGrids,
+                                 &localReadier );
     nloInput->setUsingNloFlag( true );
     nloCrossSectionHandler = new crossSectionHandler( nloInput );
     updateForNewSlhaFile();

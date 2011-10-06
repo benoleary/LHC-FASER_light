@@ -59,9 +59,12 @@ namespace LHC_FASER
   class lhcFaserLight
   {
   public:
-    lhcFaserLight( std::string const slhaSpectrumFileName );
+    lhcFaserLight( std::string const slhaSpectrumFileName,
+                   std::string const pathToGrids = "./NLO_grids" );
     ~lhcFaserLight();
 
+    void
+    setGridLocation( std::string pathToGrids );
     double
     getLoSevenTevCrossSection( int const firstSparticlePdgCode,
                                int const secondSparticlePdgCode );
