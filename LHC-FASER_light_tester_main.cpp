@@ -81,6 +81,9 @@ int main( int argumentCount,
     // the exampleLhcFaserLight constructor, but this is to make things clear.
     std::string secondSlhaFileName( argumentStrings[ 2 ] );
     LHC_FASER::lhcFaserLight exampleLhcFaserLight( firstSlhaFileName );
+    exampleLhcFaserLight.setVerbosity( true );
+    // this sets exampleLhcFaserLight to print warnings if values outside the
+    // grids are requested.
 
     std::cout
     << std::endl

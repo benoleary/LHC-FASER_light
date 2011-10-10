@@ -87,6 +87,8 @@ namespace LHC_FASER
     getSumOfNloCrossSectionsAtSevenTeV();
     double
     getSumOfNloCrossSectionsAtFourteenTeV();
+    void
+    setVerbosity( bool const inputVerbosity );
 
   protected:
     CppSLHA::CppSLHA2 slhaData;
@@ -196,6 +198,13 @@ namespace LHC_FASER
                                            *channelIterator )->getValue();
     }
     return returnValue;
+  }
+
+  inline void
+  lhcFaserLight::setVerbosity( bool const inputVerbosity )
+  {
+    loInput->setVerbosity( inputVerbosity );
+    nloInput->setVerbosity( inputVerbosity );
   }
 
 }  // end of LHC_FASER namespace

@@ -92,7 +92,7 @@
  * PDG codes for the required sparticles. This is demonstrated in the rest of
  * the file, along with how to make the lhcFaserLight object use a spectrum
  * from a different file, with updateForNewSlhaFile( std::string ), as shown on
- * line 202 of the LHC-FASER_light_tester_main.cpp file. If the file name has
+ * line 205 of the LHC-FASER_light_tester_main.cpp file. If the file name has
  * not changed, but the file has been overwritten with new data,
  * updateForNewSlhaFile() can be used with no arguments.
  * the lhcFaserLight constructor can also be given a 2nd argument string, with
