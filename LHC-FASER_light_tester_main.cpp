@@ -65,13 +65,15 @@
 int main( int argumentCount,
           char* argumentStrings[] )
 {
-  if( 3 != argumentCount )
+  if( ( 2 != argumentCount )
+      &&
+      ( 3 != argumentCount ) )
   // if the input was definitely wrong...
   {
     std::cout
     << std::endl
-    << "error! this program requires 2 strings as its arguments: the names of"
-    << " 2 SLHA-format files providing the spectra.";
+    << "error! this program requires 1 or 2 strings as its arguments: the"
+    << " name or names of 1 or 2 SLHA-format files providing the spectra.";
     std::cout << std::endl;  // let the user know the format.
   }
   else  // otherwise, do what is supposed to be done.
@@ -79,7 +81,6 @@ int main( int argumentCount,
     std::string firstSlhaFileName( argumentStrings[ 1 ] );
     // I could just give argumentStrings[ 1 ] as the argument for
     // the exampleLhcFaserLight constructor, but this is to make things clear.
-    std::string secondSlhaFileName( argumentStrings[ 2 ] );
     LHC_FASER::lhcFaserLight exampleLhcFaserLight( firstSlhaFileName );
     exampleLhcFaserLight.setVerbosity( true );
     // this sets exampleLhcFaserLight to print warnings if values outside the
@@ -202,27 +203,32 @@ int main( int argumentCount,
     << std::endl
     << std::endl;
 
-    exampleLhcFaserLight.updateForNewSlhaFile( secondSlhaFileName );
-    std::cout
-    << std::endl
-    << "now subsequent cross-sections will use the spectrum from "
-    << secondSlhaFileName
-    << std::endl
-    << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
-    << CppSLHA::PDG_code::gluino << " ) = "
-    << exampleLhcFaserLight.getNloSevenTevCrossSection(
+    if( 3 == argumentCount )
+    {
+      std::string secondSlhaFileName( argumentStrings[ 2 ] );
+      exampleLhcFaserLight.updateForNewSlhaFile( secondSlhaFileName );
+      std::cout
+      << std::endl
+      << "now subsequent cross-sections will use the spectrum from "
+      << secondSlhaFileName
+      << std::endl
+      << "NLO, 7 TeV, gluino ( " << CppSLHA::PDG_code::gluino << " ) + gluino ( "
+      << CppSLHA::PDG_code::gluino << " ) = "
+      << exampleLhcFaserLight.getNloSevenTevCrossSection(
                                                      CppSLHA::PDG_code::gluino,
                                                     CppSLHA::PDG_code::gluino )
-    << " pb";
-    std::cout
-    << std::endl
-    << std::endl
-    << *(exampleLhcFaserLight.getExampleOutput());
-    std::cout
-    << std::endl
-    << std::endl;
+      << " pb";
+      std::cout
+      << std::endl
+      << std::endl
+      << *(exampleLhcFaserLight.getExampleOutput());
+      std::cout
+      << std::endl
+      << std::endl;
+    }
   }
 
+  // this was a triumph! I'm making a note here:
   return EXIT_SUCCESS;
 
 }
